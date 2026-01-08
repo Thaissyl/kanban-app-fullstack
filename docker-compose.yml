@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: thaibeo
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: todo_db
+    ports:
+      - "5434:5432" # Máy thật dùng 5434 để gọi vào 5432 của Docker
+
+  backend:
+    build: ./backend
+    container_name: nestjs_server
+    ports:
+      - "3000:3000"
+    environment:
+      # Chú ý: Ở đây dùng 'db' vì backend và db nằm chung mạng Docker
+      DATABASE_URL: "postgresql://thaibeo:password@db:5432/todo_db?schema=public"
+    depends_on:
+      - db
