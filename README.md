@@ -1,66 +1,99 @@
-# Todo App - Full Stack
+# 📝 Todo App - Full Stack
 
 Full-stack todo application with kanban-style board interface, built with NestJS, React, and PostgreSQL.
 
-## Tech Stack
+## 🛠 Tech Stack
 
-**Backend:** NestJS 11.0.1 | Prisma 7.2.0 | PostgreSQL 15 | TypeScript 5.7.3
-**Frontend:** React 19.2.0 | Vite 7.2.4 | TypeScript 5.9.3
-**Infrastructure:** Docker Compose | pnpm Workspace
+| Backend | Frontend | Infrastructure |
+|---------|----------|----------------|
+| NestJS `11.0.1` | React `19.2.0` | Docker Compose |
+| Prisma `7.2.0` | Vite `7.2.4` | pnpm Workspace |
+| PostgreSQL `15` | TypeScript `5.9.3` | |
+| TypeScript `5.7.3` | Axios `1.13.2` | |
 
-## Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+
-- pnpm 8+
-- Docker & Docker Compose
+- **Node.js** 18+
+- **pnpm** 8+
+- **Docker** & Docker Compose
 
-### 1. Install Dependencies
+### One-Command Setup (First Time)
+
+```bash
+# Install deps + Start DB + Run migrations + Start both servers
+pnpm install && docker-compose up -d && (cd backend && npx prisma migrate dev && npx prisma generate) && (cd backend && pnpm run start:dev & cd frontend && pnpm run dev)
+```
+
+### Step-by-Step
+
+**1️⃣ Install Dependencies**
 ```bash
 pnpm install
 ```
 
-### 2. Start PostgreSQL Database
+**2️⃣ Start Database & Migrate**
 ```bash
-docker-compose up -d
+docker-compose up -d                    # Start PostgreSQL
+cd backend && npx prisma migrate dev    # Run migrations
+npx prisma generate                     # Generate Prisma Client
+cd ..                                   # Return to root
 ```
 
-### 3. Run Database Migrations
+**3️⃣ Start Development Servers**
 ```bash
-cd backend
-npx prisma migrate dev
-npx prisma generate
+# Terminal 1 - Backend (http://localhost:3000/api)
+cd backend && pnpm run start:dev
+
+# Terminal 2 - Frontend (http://localhost:5173)
+cd frontend && pnpm run dev
 ```
 
-### 4. Start Development Servers
-
-**Backend (Terminal 1):**
-```bash
-cd backend
-pnpm run start:dev
-# Runs on http://localhost:3000/api
-```
-
-**Frontend (Terminal 2):**
-```bash
-cd frontend
-pnpm run dev
-# Runs on http://localhost:5173
-```
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 todo-app-fullstack/
-├── backend/          # NestJS API server
-│   ├── prisma/      # Database schema & migrations
-│   └── src/         # Source code
-│       ├── common/  # Shared utilities
-│       └── todo/    # Todo feature module
-├── frontend/        # React SPA
-│   └── src/        # React components
-├── docs/           # Documentation
-└── docker-compose.yml
+├── backend/
+│   ├── prisma/
+│   │   ├── schema.prisma          # Database schema with Todo model
+│   │   └── migrations/            # SQL migration history
+│   ├── src/
+│   │   ├── main.ts                # NestJS bootstrap (port 3000, CORS, /api prefix)
+│   │   ├── app.module.ts          # Root module with PrismaService provider
+│   │   ├── common/
+│   │   │   ├── interceptors/
+│   │   │   │   └── transform.interceptor.ts  # Wraps responses in {success, data, timestamp}
+│   │   │   └── pipes/
+│   │   │       └── zod-validation.pipe.ts    # Zod schema validation
+│   │   ├── prisma/
+│   │   │   └── prisma.service.ts            # PrismaService wrapper (auto-connect)
+│   │   └── todo/
+│   │       ├── todo.controller.ts           # GET/POST/PATCH/DELETE /api/todo endpoints
+│   │       ├── todo.service.ts              # Business logic + Prisma queries
+│   │       ├── todo.module.ts               # Todo feature module
+│   │       ├── dto/                         # Zod validation schemas
+│   │       └── entities/                    # TypeScript types
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── nest-cli.json
+│   └── Dockerfile
+├── frontend/
+│   ├── src/
+│   │   ├── main.tsx                 # React entry point
+│   │   ├── App.tsx                  # Root component
+│   │   ├── api.ts                   # Axios client (baseURL: http://localhost:3000/todo)
+│   │   └── assets/                  # Static assets
+│   ├── package.json
+│   ├── vite.config.ts
+│   └── tsconfig.json
+├── docs/
+│   ├── project-overview-pdr.md      # Product requirements & roadmap
+│   ├── codebase-summary.md          # Tech stack & API docs
+│   ├── code-standards.md            # Conventions & patterns
+│   └── system-architecture.md       # Architecture diagrams
+├── docker-compose.yml               # PostgreSQL + Backend services
+├── package.json                     # Root pnpm workspace config
+└── README.md
 ```
 
 ## Available Scripts
@@ -147,22 +180,22 @@ enum TaskStatus {
 }
 ```
 
-## Development Workflow
+## 🔧 Development Workflow
 
-1. **Feature Development:**
+1. **Feature Development**
    - Create feature branch
    - Implement following [code-standards.md](./docs/code-standards.md)
    - Add tests
    - Update documentation
 
-2. **Database Changes:**
+2. **Database Changes**
    ```bash
    # Edit schema.prisma
    npx prisma migrate dev --name describe_change
    npx prisma generate
    ```
 
-3. **Code Quality:**
+3. **Code Quality**
    ```bash
    # Backend
    cd backend && pnpm run lint
@@ -171,44 +204,107 @@ enum TaskStatus {
    cd frontend && pnpm run lint
    ```
 
-## Documentation
+## 📚 Documentation
 
-- [Project Overview & PDR](./docs/project-overview-pdr.md) - Product requirements and roadmap
-- [Codebase Summary](./docs/codebase-summary.md) - Technical stack and API documentation
-- [Code Standards](./docs/code-standards.md) - Conventions and patterns
-- [System Architecture](./docs/system-architecture.md) - Architecture diagrams and design decisions
+| Document | Description |
+|----------|-------------|
+| [Project Overview & PDR](./docs/project-overview-pdr.md) | Product requirements and roadmap |
+| [Codebase Summary](./docs/codebase-summary.md) | Technical stack and API documentation |
+| [Code Standards](./docs/code-standards.md) | Conventions and patterns |
+| [System Architecture](./docs/system-architecture.md) | Architecture diagrams and design decisions |
 
-## Current Status
+## 🐛 Troubleshooting
+
+### Database Connection Issues
+
+**Problem:** `Can't reach database server`
+```bash
+# Check Docker container status
+docker-compose ps
+
+# Restart database
+docker-compose restart db
+
+# View database logs
+docker-compose logs db
+```
+
+### Prisma Issues
+
+**Problem:** `PGRST116` or migration errors
+```bash
+# Reset database (⚠️ deletes all data)
+cd backend
+npx prisma migrate reset
+
+# Regenerate Prisma Client
+npx prisma generate
+```
+
+### Port Already in Use
+
+**Problem:** `EADDRINUSE: address already in use ::3000`
+```bash
+# Find process using port 3000
+netstat -ano | findstr :3000  # Windows
+lsof -i :3000                  # macOS/Linux
+
+# Kill the process or use different port
+```
+
+### Migration History Conflicts
+
+**Problem:** Migration out of sync
+```bash
+# Resolve migration drift
+cd backend
+npx prisma migrate resolve --applied "migration_name"
+```
+
+### Docker Issues
+
+**Problem:** Container fails to start
+```bash
+# Rebuild containers
+docker-compose down -v
+docker-compose up -d --build
+
+# Clean rebuild (⚠️ deletes database data)
+docker-compose down -v
+docker volume prune
+docker-compose up -d --build
+```
+
+## ✅ Current Status
 
 ### Completed
-- Backend API with CRUD operations
-- PostgreSQL database with Prisma ORM
-- Docker Compose configuration
-- Zod validation and response wrapping
+- ✅ Backend API with CRUD operations
+- ✅ PostgreSQL database with Prisma ORM
+- ✅ Docker Compose configuration
+- ✅ Zod validation and response wrapping
 
 ### In Progress
-- Frontend todo UI implementation
-- Kanban board with drag-and-drop
-- Error handling and loading states
+- 🚧 Frontend todo UI implementation
+- 🚧 Kanban board with drag-and-drop
+- 🚧 Error handling and loading states
 
 ### Planned
-- User authentication
-- Advanced filtering and search
-- Responsive design improvements
-- Production deployment
+- 📋 User authentication
+- 📋 Advanced filtering and search
+- 📋 Responsive design improvements
+- 📋 Production deployment
 
-## Contributing
+## 🤝 Contributing
 
 1. Follow [code-standards.md](./docs/code-standards.md)
 2. Write tests for new features
 3. Update relevant documentation
 4. Submit PR with clear description
 
-## License
+## 📄 License
 
 UNLICENSED
 
 ---
 
-**Version:** 1.0.0
-**Last Updated:** 2026-01-08
+**Version:** 1.0.0 | **Last Updated:** 2026-01-08
